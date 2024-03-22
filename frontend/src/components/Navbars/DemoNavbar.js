@@ -36,7 +36,7 @@ import {
   Input,
 } from "reactstrap";
 
-import routes from "routes.js";
+import routes from "../../routes";
 
 function Header(props) {
   const [isOpen, setIsOpen] = React.useState(false);

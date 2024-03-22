@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv'
 import bodyParser from "body-parser";
 import connectDB from "./config/db.js";
+import path from 'path'
+import ServerlessHttp from "serverless-http";
 
 dotenv.config()
 connectDB();
@@ -26,14 +28,26 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    // Set to true if you need the website to include cookies in the requests sent to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    // Pass to next layer of middleware
     next();
 })
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use('/api/complaints', complaintRoutes);
-app.get('/', (res, req) => res.send('Srever is on'))
+
+if (process.env.NODE_ENV === 'production') {
+    const __dirname = path.resolve()
+    app.use(express.static(path.join(__dirname, 'frontend/build')))
+    app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html')))
+} else {
+    app.get('/', (res, req) => res.send('Srever is on'))
+
+}
+
+const router = express.Router();
+app.use('./netlify/functions/server', router)
+
 app.listen(port, ()=>console.log(`listening on port ${port}`))
+
+module.exports.handler = ServerlessHttp(app)

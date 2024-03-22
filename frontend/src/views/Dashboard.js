@@ -17,7 +17,7 @@ import {
   dashboard24HoursPerformanceChart,
   dashboardEmailStatisticsChart,
   dashboardNASDAQChart,
-} from "variables/charts.js";
+} from "../variables/charts.js";
 
 function Dashboard() {
   return (
