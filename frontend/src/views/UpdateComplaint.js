@@ -9,7 +9,7 @@ import {
 
   
 const UpdateComplaint = () => {
-  const url = "http://localhost:5000/api/complaints"
+  const url = "https://helpdesk-back.glitch.me/api/complaints"
   const [email, setEmail] = useState("")
   const [date, setDate] = useState("")
   const [issue, setIssue] = useState("")

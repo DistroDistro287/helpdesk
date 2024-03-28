@@ -84,6 +84,8 @@ const removeComplaint = asyncHandler(async (req,res) => {
 
 
 const sendConfirmationEmail = async () => {
+    // const API_URL = "https://helpdesk-back.glitch.me/api/complaints"
+    const API_URL = "http://localhost:5000/api/complaints"
     let transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
@@ -92,7 +94,6 @@ const sendConfirmationEmail = async () => {
         }
     });
 
-   
     // Email content
     let mailOptions = {
         from: 'HELPDESK',
@@ -106,7 +107,7 @@ const sendConfirmationEmail = async () => {
                 <div>
                 <p>Were you satisfied with the help received? Please confirm your satisfaction:</p>
                 
-                <a href="#" style="background-color: initial;
+                <a href="${API_URL}/confirm-feedback?feedback=satisfied" style="background-color: initial;
                     background-image: linear-gradient(-180deg, #00D775, #00BD68);
                     border-radius: 5px;
                     box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
@@ -144,7 +145,7 @@ const sendConfirmationEmail = async () => {
                 <p>If you are dissatisfied, please click the button below:</p>
 
 
-                <a href="#" style="background-color: initial;
+                <a href="${API_URL}/confirm-feedback?feedback=dissatisfied" style="background-color: initial;
                     background-image: linear-gradient(-180deg, #FF7E31, #E62C03);
                     border-radius: 5px;
                     box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
@@ -190,38 +191,45 @@ const sendConfirmationEmail = async () => {
       throw error;
     }
   }
-  
 
-// Endpoint for sending confirmation email
-// app.get('/send-email', async (req, res) => {
-//     try {
-//         const mailOptions = {
-//             from: 'distrodistro287@gmail.com',
-//             to: 'levaakai@gmail.com',
-//             subject: 'Confirmation of Service',
-//             html: `
-//                 <p>Were you satisfied with the help received? Please confirm your satisfaction:</p>
-//                 <a href="#">Confirm Satisfaction</a>
-//                 <br>
-//                 <p>If you are dissatisfied, please click the button below:</p>
-//                 <a href="#">Confirm Dissatisfaction</a>
-//             `
-//         };
 
-//         await transporter.sendMail(mailOptions);
-//         res.send('Email sent successfully');
-//     } catch (error) {
-//         console.error('Error sending email:', error);
-//         res.status(500).send('Error sending email');
-//     }
-// });
+
+
+  const confirmFeedback = asyncHandler(async (req, res) => {
+    const feedback = req.query.feedback; 
+
+    console.log('feedback is: ', req.query.feedback)
+    if (feedback === 'satisfied') {
+        res.status(200).json({ message: 'Satisfaction confirmed' });
+    } else if (feedback === 'dissatisfied') {
+        res.status(200).json({ message: 'Dissatisfaction confirmed' });
+    } else {
+        res.status(400).json({ error: 'Invalid confirmation value' });
+    }
+})
+
+
 
 
 const confirmSatisfaction = asyncHandler(async (req, res) => {
-    res.status(201).json({message: "satisfaction confirmed"})
+    try {
+        const satisfactionConfirmation = req.query['confirm-satisfaction'];
+        if (satisfactionConfirmation === 'true') {
+            res.status(200).json({ message: "Satisfaction confirmed" });
+        } else if (satisfactionConfirmation === 'false') {
+            res.status(200).json({ message: "Dissatisfaction confirmed" });
+        } else {
+            res.status(400).json({ message: "Invalid satisfaction confirmation value" });
+        }
+    } catch (error) {
+        // Handle any errors
+        console.error("Error confirming satisfaction:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 })
 
 const confirmDissatisfaction = asyncHandler(async (req, res) => {
+    console.log('user dissatisfaction ')
     res.status(201).json({message: "Dissatisfaction confirmed"})
 })
 
@@ -235,6 +243,7 @@ export {
     updateComplaint, 
     removeComplaint,
     sendConfirmationEmail,
+    confirmFeedback,
     confirmSatisfaction,
     confirmDissatisfaction
  }

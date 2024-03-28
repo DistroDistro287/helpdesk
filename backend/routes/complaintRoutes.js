@@ -7,6 +7,7 @@ import {
     updateComplaint, 
     removeComplaint,
     sendConfirmationEmail,
+    confirmFeedback,
     confirmSatisfaction,
     confirmDissatisfaction 
 } from "../controller/UserController.js"
@@ -15,6 +16,7 @@ const router = express.Router();
 
 router.get('/get-complaints', getComplaints)
 router.post('/send-email', sendConfirmationEmail)
+router.get('/confirm-feedback', confirmFeedback)
 router.get('/confirm-satisfaction', confirmSatisfaction)
 router.get('/confirm-dissatisfaction', confirmDissatisfaction)
 router.post('/auth', authenticateUser)

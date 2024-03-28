@@ -1,32 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Row,
-  Col,
-  Table,
-  Badge,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  Button
-} from "reactstrap";
-import sendConfirmationEmail from '../'
+import { Card, CardHeader, CardTitle, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import ComplaintDetails from "../components/ComplaintDetails";
 
 function Complaints() {
   const [complaints, setComplaints] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [modal, setModal] = useState(false);
 
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/complaints/get-complaints"
+          "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
         );
         const json = await response.json();
 
@@ -41,11 +27,16 @@ function Complaints() {
     fetchComplaints();
   }, []);
 
+  const handleViewComplaint = (complaint) => {
+    setSelectedComplaint(complaint);
+    toggleModal();
+  };
+
   const handleComplaintDelete = async (id) => {
     console.log('Deleting complaint with ID:', id);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/complaints/remove-complaint/${id}`, {
+      const response = await fetch(`https://helpdesk-back.glitch.me/api/complaints/remove-complaint/${id}`, {
         method: 'DELETE'
       });
       const json = await response.json();
@@ -53,6 +44,7 @@ function Complaints() {
       if (response.ok) {
         setComplaints(complaints.filter(complaint => complaint._id !== id));
         console.log("Complaint deleted successfully:", json.message);
+        alert("Complaint Deleted");
       } else {
         console.error("Failed to delete complaint:", json.error);
       }
@@ -66,229 +58,82 @@ function Complaints() {
     setShowUpdateForm(true);
   };
 
-  return (
-    <>
-      <div className="content">
-        <Row>
-          <Col md="12">
-            <Card>
-              <CardHeader>
-                <CardTitle tag="h5">Complaints</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Table striped hover>
-                  <thead className="text-primary">
-                    <tr>
-                      <th>#</th>
-                      <th>Date</th>
-                      <th>Detailed<br />Issue</th>
-                      <th>Department</th>
-                      <th>Time<br />In</th>
-                      <th>Time<br />Out</th>
-                      <th>Outcome</th>
-                      <th>MIS<br />Officer</th>
-                      <th>Confirmation<br />Officer</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {complaints.map((complaint, index) => (
-                      <React.Fragment key={complaint._id}>
-                        <tr>
-                          <td>{index + 1}</td>
-                          <td>{complaint.date}</td>
-                          <td>{complaint.issue}</td>
-                          <td>{complaint.department}</td>
-                          <td>{complaint.timeIn}</td>
-                          <td>{complaint.timeOut}</td>
-                          <td>{complaint.outcome}</td>
-                          <td>{complaint.MIS_Officer}</td>
-                          <td>{complaint.confirmationOfficer}</td>
-                          <td>
-                            <Button
-                              color="primary"
-                              size="sm"
-                              onClick={() => handleComplaintUpdate(complaint)}
-                            >
-                              Update
-                            </Button>
-                            <Button
-                              color="danger"
-                              size="sm"
-                              onClick={() => handleComplaintDelete(complaint._id)}
-                            >
-                              Delete
-                            </Button>
-                            <Button
-                              color="info"
-                              size="sm"
-                              onClick={() => console.log('pressed')}
-                            >
-                              Mail
-                            </Button>
-                          </td>
-                        </tr>
-                        {selectedComplaint === complaint && showUpdateForm && (
-                          <tr>
-                            <td colSpan="10">
-                              <UpdateForm complaint={selectedComplaint} />
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    </>
-  );
-}
 
-const UpdateForm = ({ complaint }) => {
-  const [date, setDate] = useState(complaint.date);
-  const [issue, setIssue] = useState(complaint.issue);
-  const [department, setDepartment] = useState(complaint.department);
-  const [timeIn, setTimeIn] = useState(complaint.timeIn)
-  const [timeOut, setTimeOut] = useState(complaint.timeOut)
-  const [outcome, setOutcome] = useState(complaint.outcome)
-  const [MIS_Officer, setMIS_Officer] = useState(complaint.MIS_Officer)
-  const [confirmationOfficer, setConfirmationOfficer] = useState(complaint.confirmationOfficer)
-  const [complaints, setComplaints] = useState("")
-  const [id, setId] = useState(complaint._id)
-  // Add state variables for other fields
 
-  console.log('id is ', id)
+  const handleCloseComplaintDetails = () => {
+    setSelectedComplaint(null);
+    toggleModal();
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const updatedComplaint = { date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer };
-    
-    try {
-      const response = await fetch(`http://localhost:5000/api/complaints/update-complaint/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedComplaint),
-      });
-      const json = await response.json();
-
-      if (response.ok) {
-        console.log("Complaint updated successfully:", json.message);
-      }else {
-        console.error("Failed to update complaint:", json.error);
-      }
-    } catch (error) {
-      console.error("Error deleting complaint:", error);
-    }
-    console.log("Updated complaint:", updatedComplaint);
+  const toggleModal = () => {
+    setModal(!modal);
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <FormGroup>
-        <Label for="date">Date</Label>
-        <Input
-          type="text"
-          name="date"
-          id="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="issue">Detailed Issue</Label>
-        <Input
-          type="textarea"
-          name="issue"
-          id="issue"
-          value={issue}
-          onChange={(e) => setIssue(e.target.value)}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Label for="department">Department</Label>
-        <Input
-          type="select"
-          name="department"
-          id="department"
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-        >
-          <option value="">Select Department</option>
-          <option value="Human Resource">Human Resource</option>
-          <option value="Public Relation">Public Relation</option>
-          <option value="Audit">Audit</option>
-          <option value="Finance">Finance</option>
-          <option value="Research & Monitoring Evaluation">Research & Monitoring Evaluation</option>
-          <option value="Shipper Services">Shipper Services</option>
-        </Input>
-      </FormGroup>
-      <FormGroup>
-            <Label for="time-in">Time In</Label>
-            <Input
-              type='time'
-              name="time-in"
-              id="time-in"
-              onChange={(e)=>setTimeIn(e.target.value)}
-              value={timeIn}
+    <>
+      <div className="content">
+        <Card>
+          <CardHeader>
+            <CardTitle tag="h5">Complaints</CardTitle>
+          </CardHeader>
+          <Table striped hover>
+            <thead className="text-primary">
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Detailed<br />Issue</th>
+                <th>Department</th>
+                <th>Time<br />In</th>
+                <th>Time<br />Out</th>
+                <th>Outcome</th>
+                <th>MIS<br />Officer</th>
+                <th>Confirmation<br />Officer</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {complaints.map((complaint, index) => (
+                <tr key={complaint._id}>
+                  <td>{index + 1}</td>
+                  <td>{complaint.date}</td>
+                  <td>{complaint.issue}</td>
+                  <td>{complaint.department}</td>
+                  <td>{complaint.timeIn}</td>
+                  <td>{complaint.timeOut}</td>
+                  <td>{complaint.outcome}</td>
+                  <td>{complaint.MIS_Officer}</td>
+                  <td>{complaint.confirmationOfficer}</td>
+                  <td>
+                    <Button
+                      color="primary"
+                      size="sm"
+                      onClick={() => handleViewComplaint(complaint)}
+                    >
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card>
+      </div>
+      <Modal isOpen={modal} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>Complaint Details</ModalHeader>
+        <ModalBody>
+          <ComplaintDetails 
+            complaint={selectedComplaint}  
+            handleComplaintUpdate={handleComplaintUpdate}
+            handleComplaintDelete={handleComplaintDelete}
+            showUpdateForm={showUpdateForm}
             />
-          </FormGroup>
-          <FormGroup>
-            <Label for="time-out">Time Out</Label>
-            <Input
-              type='time'
-              name="time-out"
-              id="time-out"
-              onChange={(e)=>setTimeOut(e.target.value)}
-              value={timeOut}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="outcome">Outcome</Label>
-            <Input
-              type={"select"}
-              name="outcome"
-              id="outcome"
-              onChange={(e)=>setOutcome(e.target.value)}
-            >
-                <option value="" hidden>Outcome</option>
-                <option value={"Resolved"}>Resolved</option>
-                <option value={"Not Resolved"}>Not Resolved</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="mis-officer">MIS Officer</Label>
-            <Input
-              type={"select"}
-              name="mis-officer"
-              id="mis-officer"
-              onChange={(e)=>setMIS_Officer(e.target.value)}
-            >
-                <option value="" hidden>MIS Officer</option>
-                <option value={"Ben"}>Ben</option>
-                <option value={"Daniel"}>Daniel</option>
-                <option value={"NSP"}>NSP</option>
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="confirmation-officer">Confirmation Officer</Label>
-            <Input
-              type='text'
-              name="confirmation-officer"
-              id="confirmation-officer"
-              placeholder="Confirmation Officer"
-              onChange={(e)=>setConfirmationOfficer(e.target.value)}
-              value={confirmationOfficer}
-            />
-          </FormGroup>
-      <Button type="submit">Update</Button>
-    </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" onClick={handleCloseComplaintDetails}>Close</Button>
+        </ModalFooter>
+      </Modal>
+    </>
   );
-};
+}
 
 export default Complaints;

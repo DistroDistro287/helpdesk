@@ -10,7 +10,7 @@ import UpgradeToPro from "./views/Upgrade.js";
 import NewComplaint from "./views/NewComplaint";
 import Complaints from "./views/Complaints";
 import UpdateComplaint from "./views/UpdateComplaint";
-
+import ComplaintDetails from "./components/ComplaintDetails.js";
 
 
 var routes = [
@@ -35,6 +35,13 @@ var routes = [
     component: <Complaints />,
     layout: "/admin",
   },
+  // {
+  //   path: "/vcomplaint",
+  //   name: "View Complaint",
+  //   icon: "nc-icon nc-bell-55",
+  //   component: <ComplaintDetails />,
+  //   layout: "/admin",
+  // },
   // {
   //   path: "/update-complaint",
   //   name: "Update Complaints",

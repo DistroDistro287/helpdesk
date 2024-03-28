@@ -4,7 +4,6 @@ import dotenv from 'dotenv'
 import bodyParser from "body-parser";
 import connectDB from "./config/db.js";
 import path from 'path'
-import ServerlessHttp from "serverless-http";
 
 dotenv.config()
 connectDB();
@@ -46,8 +45,5 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const router = express.Router();
-app.use('./netlify/functions/server', router)
 
 app.listen(port, ()=>console.log(`listening on port ${port}`))
-
-module.exports.handler = ServerlessHttp(app)
