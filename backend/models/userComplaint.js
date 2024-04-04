@@ -39,13 +39,19 @@ const complaintSchema = mongoose.Schema({
     confirmationOfficer: {
         type: "String",
         required: true
+    },
+    confirmationOfficerFeedback: {
+        type: "String",
+        enum: ['Satisfied', 'Not Satisfied', 'Not Confirmed'],
+        required: true,
+        default: 'Not Confirmed'
     }
 }, {
     // virtual property to format date as DD-MM-YY
     toJSON: {
         virtuals: true,
         transform: (doc, ret) => {
-            ret.date = formatDate(ret.date); // Format date
+            ret.date = formatDate(ret.date);
             return ret;
         }
     }

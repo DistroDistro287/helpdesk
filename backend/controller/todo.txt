@@ -1,0 +1,17 @@
+clear out form fields
+
+email: when complaint officer receives and clicks a button in mail once, shouldn;t be able to select again (tokenize??)
+
+work on ui.. add toasts for validity checks
+
+delete button should confirm delete before deletion
+
+send mail button shold be grayed out after sending mail
+
+email: add a status (boolean property) to check if complaint officer has clicked on the button or not
+
+"Update" -> "Edit"
+
+Detailed Issue column should go down in complaint details
+
+complaints tab should not have all fields shown. limit to about 3 columns; issue column should be truncated

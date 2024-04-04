@@ -11,9 +11,9 @@ function Complaints() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const response = await fetch(
-          "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
-        );
+          // const url = "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
+  const url = "http://localhost:5000/api/complaints/get-complaints"
+        const response = await fetch(`${url}`);
         const json = await response.json();
 
         if (response.ok) {
@@ -88,6 +88,7 @@ function Complaints() {
                 <th>Outcome</th>
                 <th>MIS<br />Officer</th>
                 <th>Confirmation<br />Officer</th>
+                <th>Feedback</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -103,6 +104,7 @@ function Complaints() {
                   <td>{complaint.outcome}</td>
                   <td>{complaint.MIS_Officer}</td>
                   <td>{complaint.confirmationOfficer}</td>
+                  <td>{complaint.confirmationOfficerFeedback}</td>
                   <td>
                     <Button
                       color="primary"

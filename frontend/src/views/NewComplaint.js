@@ -9,7 +9,8 @@ import {
 
   
 const NewComplaint = () => {
-  const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
+  // const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
+  const url = "http://localhost:5000/api/complaints/send-complaint"
   const [email, setEmail] = useState("")
   const [date, setDate] = useState("")
   const [issue, setIssue] = useState("")
@@ -19,6 +20,7 @@ const NewComplaint = () => {
   const [outcome, setOutcome] = useState("")
   const [MIS_Officer, setMIS_Officer] = useState("")
   const [confirmationOfficer, setConfirmationOfficer] = useState("")
+  const [confirmationOfficerFeedback, setConfirmationOfficerFeedback] = useState("")
   const [error, setError] = useState('')
 
   const [selectedOption, setSelectedOption] = useState("");
@@ -34,7 +36,20 @@ const NewComplaint = () => {
     const handleSubmit = async (e) => {
       e.preventDefault();
 
-    const complaint = {email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer}
+      console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
+
+    const complaint = {
+      email, 
+      date, 
+      issue, 
+      department, 
+      timeIn, 
+      timeOut, 
+      outcome, 
+      MIS_Officer, 
+      confirmationOfficer, 
+      confirmationOfficerFeedback
+    }
     const response = await fetch(`${url}`, {
       method: 'POST', 
       body: JSON.stringify(complaint),

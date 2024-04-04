@@ -1,16 +1,55 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import { Card, CardHeader, CardBody, CardTitle, Table, Button, ButtonGroup, Form, FormGroup, Input, Label } from "reactstrap";
+import { useSearchParams } from "react-router-dom";
+
+
 
 
 const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDelete, showUpdateForm, onClose }) => {
-  if (!complaint) {
+    const [confirmationFeedback, setConfirmationFeedback] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+
+
+    // useEffect(() => {
+    //     const fetchConfirmationFeedback = async (props) => {
+    //         try {
+    //             // searchParams.get("feedback")
+
+    //             // const response = await fetch(`http://localhost:5000/api/complaints/confirm-feedback?`);
+    //             // const data = await response.json();
+    //             // setConfirmationFeedback(data.message);
+    //             // console.log("Confirmation Feedback:", data.message);
+    //             console.log("params is ", searchParams.get("feedback"))
+    //         } catch (error) {
+    //             console.error("Error fetching confirmation feedback:", error);
+    //         }
+    //     };
+    //     fetchConfirmationFeedback();
+    // }, []); 
+    
+  
+
+if (!complaint) {
     return null; 
   }
 
-  const sendMail = async () => {
-    console.log("Send mail")
-  }
 
+const sendMail = async () => {
+    try {
+      await fetch("http://localhost:5000/api/complaints/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email: complaint.email, id: complaint._id })
+      });
+      console.log("Email sent successfully!");
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  }
+  
 
   return (
     <div>
@@ -48,6 +87,10 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
             <tr>
               <th>Confirmation Officer</th>
               <td>{complaint.confirmationOfficer}</td>
+            </tr>
+            <tr>
+              <th>Confirmation Officer Feedback</th>
+              <td>{complaint.confirmationOfficerFeedback}</td>
             </tr>
             </tbody>
           </Table>

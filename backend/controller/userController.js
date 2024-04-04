@@ -13,7 +13,7 @@ const registerUser = asyncHandler(async (req,res) => {
 
 // create complaint
 const sendComplaint = asyncHandler(async (req,res) => {
-    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer} = req.body;
+    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer, confirmationOfficerFeedback} = req.body;
     const complaint = await UserComplaint.create({
         email, 
         date,
@@ -23,8 +23,12 @@ const sendComplaint = asyncHandler(async (req,res) => {
         timeOut, 
         outcome, 
         MIS_Officer, 
-        confirmationOfficer
+        confirmationOfficer,
+        confirmationOfficerFeedback: "Not Confirmed"
     })
+
+    console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
+
     if (complaint) {
         res.status(201).json({complaint})
     } else {
@@ -42,7 +46,7 @@ const getComplaints = asyncHandler(async (req,res) => {
 
 // update complaint
 const updateComplaint = asyncHandler(async (req, res) => {
-    const { id } = req.params; // Get the complaint ID from the request parameters
+    const { id } = req.params;
     const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer } = req.body; // Get the updated complaint data from the request body
     const complaint = await UserComplaint.findById(id);
   
@@ -83,9 +87,31 @@ const removeComplaint = asyncHandler(async (req,res) => {
 
 
 
-const sendConfirmationEmail = async () => {
+const sendConfirmationEmail = asyncHandler(async (req, res) => {
+    const email = req.body.email
+    const id = req.body.id
+    
     // const API_URL = "https://helpdesk-back.glitch.me/api/complaints"
     const API_URL = "http://localhost:5000/api/complaints"
+
+    const confirmSatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=true`;
+    const confirmDissatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=false`;
+
+
+    // let transporter = nodemailer.createTransport({
+    //     service: 'outlook',
+    //     port: 587,
+    //     secure: false, 
+    //     auth: {
+    //       user: 'mis@shippers.org.gh',
+    //       pass: 'Ship1234', 
+    //     },
+    //     tls: {
+    //       ciphers: 'SSLv3',
+    //       rejectUnauthorized: true,
+    //     },
+    //   });
+
     let transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
@@ -97,7 +123,7 @@ const sendConfirmationEmail = async () => {
     // Email content
     let mailOptions = {
         from: 'HELPDESK',
-        to: 'levaakai@gmail.com',
+        to: email,
         subject: 'Confirmation of Service',
         html: `
         <html>
@@ -107,82 +133,46 @@ const sendConfirmationEmail = async () => {
                 <div>
                 <p>Were you satisfied with the help received? Please confirm your satisfaction:</p>
                 
-                <a href="${API_URL}/confirm-feedback?feedback=satisfied" style="background-color: initial;
-                    background-image: linear-gradient(-180deg, #00D775, #00BD68);
-                    border-radius: 5px;
-                    box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-                    color: #FFFFFF;
-                    cursor: pointer;
-                    font-family: Inter,-apple-system,system-ui,Roboto,'Helvetica Neue',Arial,sans-serif;
-                    font-style: bold;
-                    font-size: 16px;
-                    height: 44px;
-                    line-height: 44px;
-                    outline: 0;
-                    overflow: hidden;
-                    padding: 15px 20px;
-                    pointer-events: auto;
-                    position: relative;
-                    text-align: center;
-                    touch-action: manipulation;
-                    user-select: none;
-                    -webkit-user-select: none;
-                    vertical-align: top;
-                    white-space: nowrap;
-                    width: 100%;
-                    z-index: 9;
-                    border: 0;
-                    text-decoration: none;
-                    " 
-                > 
-                Confirm Satisfaction
-                </a>
-
+                <strong>
+                    <a href="${confirmSatisfactionUrl}" 
+                        style="background-color: #00BD68; 
+                        color: #FFFFFF; 
+                        text-decoration: none; 
+                        display: inline-block; 
+                        padding: 10px 20px; 
+                        border-radius: 5px;" 
+                    > 
+                    Confirm Satisfaction
+                    </a>
+                </strong>
                 <br>
 
 
                 
                 <p>If you are dissatisfied, please click the button below:</p>
 
-
-                <a href="${API_URL}/confirm-feedback?feedback=dissatisfied" style="background-color: initial;
-                    background-image: linear-gradient(-180deg, #FF7E31, #E62C03);
-                    border-radius: 5px;
-                    box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-                    color: #FFFFFF;
-                    cursor: pointer;
-                    font-family: Inter,-apple-system,system-ui,Roboto,'Helvetica Neue',Arial,sans-serif;
-                    font-style: bold;
-                    font-size: 16px;
-                    height: 44px;
-                    line-height: 44px;
-                    outline: 0;
-                    overflow: hidden;
-                    padding: 15px 20px;
-                    pointer-events: auto;
-                    position: relative;
-                    text-align: center;
-                    touch-action: manipulation;
-                    user-select: none;
-                    -webkit-user-select: none;
-                    vertical-align: top;
-                    white-space: nowrap;
-                    width: 100%;
-                    z-index: 9;
-                    border: 0;
-                    margin: 0 auto;
-                    text-decoration: none;" 
-                >
-                    Confirm Dissatisfaction
-                </a>
+                <strong>
+                    <a href="${confirmDissatisfactionUrl}" 
+                        style="background-color: #E62C03; 
+                        color: #FFFFFF; 
+                        text-decoration: none; 
+                        display: inline-block; 
+                        padding: 10px 20px; 
+                        border-radius: 5px;"
+                    >
+                        Confirm Dissatisfaction
+                    </a>
+                </strong>
             </div>
             </body>
         </html>`
     };
   
     console.log('Sending confirmation email...');
+    console.log('req params email - ', req.body.email)
+    console.log('id is - ', id)
+    console.log('req.body - ', req.body.email)
   
-    // Send email
     try {
       let info = await transporter.sendMail(mailOptions);
       console.log('Email sent:', info.response);
@@ -190,39 +180,60 @@ const sendConfirmationEmail = async () => {
       console.error('Error sending email:', error);
       throw error;
     }
-  }
-
+  })
 
 
 
   const confirmFeedback = asyncHandler(async (req, res) => {
-    const feedback = req.query.feedback; 
+    const satisfactionConfirmation = req.query['confirm-satisfaction']; 
+    const { id } = req.params;
+    const complaint = await UserComplaint.findById(id);
+  
+    if (!complaint) {
+      res.status(404);
+      throw new Error('Complaint not found');
+    }
 
-    console.log('feedback is: ', req.query.feedback)
+    // console.log('feedback is: ', req.query.feedback)
+    
     if (feedback === 'satisfied') {
-        res.status(200).json({ message: 'Satisfaction confirmed' });
+        console.log("in feedback ID is - ", id)
+        res.status(200).json({message: "Satisfaction confirmed"});
     } else if (feedback === 'dissatisfied') {
+        console.log("in feedback,ID is - ", id)
         res.status(200).json({ message: 'Dissatisfaction confirmed' });
     } else {
         res.status(400).json({ error: 'Invalid confirmation value' });
     }
+    // res.json(feedback)
 })
-
-
 
 
 const confirmSatisfaction = asyncHandler(async (req, res) => {
     try {
         const satisfactionConfirmation = req.query['confirm-satisfaction'];
+        const id = req.query['id'];
+        
+        const complaint = await UserComplaint.findById(id);
+        if (!complaint) {
+          res.status(404);
+          throw new Error('Complaint not found');
+        }
+
         if (satisfactionConfirmation === 'true') {
+            complaint.confirmationOfficerFeedback = "Satisfied"
+            await complaint.save();
+
+            console.log("Confirmation complaint is - ", complaint.confirmationOfficerFeedback)
             res.status(200).json({ message: "Satisfaction confirmed" });
         } else if (satisfactionConfirmation === 'false') {
+            complaint.confirmationOfficerFeedback = "Not Satisfied"
+            await complaint.save();
             res.status(200).json({ message: "Dissatisfaction confirmed" });
         } else {
             res.status(400).json({ message: "Invalid satisfaction confirmation value" });
         }
     } catch (error) {
-        // Handle any errors
         console.error("Error confirming satisfaction:", error);
         res.status(500).json({ message: "Internal server error" });
     }
@@ -246,4 +257,4 @@ export {
     confirmFeedback,
     confirmSatisfaction,
     confirmDissatisfaction
- }
+}
