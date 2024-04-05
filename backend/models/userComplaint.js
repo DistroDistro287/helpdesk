@@ -45,6 +45,10 @@ const complaintSchema = mongoose.Schema({
         enum: ['Satisfied', 'Not Satisfied', 'Not Confirmed'],
         required: true,
         default: 'Not Confirmed'
+    }, 
+    satisfactionConfirmed: {
+        type: Boolean,
+        default: false
     }
 }, {
     // virtual property to format date as DD-MM-YY
@@ -75,69 +79,3 @@ const UserComplaint = mongoose.model('UserComplaint', complaintSchema);
 
 export default UserComplaint;
 
-
-
-
-
-// // import mongoose from "mongoose";
-
-// // const complaintSchema = mongoose.Schema({
-// //     email: {
-// //         type: "String",
-// //         required: true 
-// //     }
-// // })
-
-
-// // const UserComplaint = mongoose.model('UserComplaint', complaintSchema)
-
-// // export default UserComplaint;
-// import mongoose from "mongoose";
-
-// const complaintSchema = mongoose.Schema({
-//     email: {
-//         type: "String",
-//         required: true 
-//     },
-//     date: {
-//         type: Date,
-//         required: true
-//     }, 
-//     issue: {
-//         type: "String",
-//         required: true
-//     },
-//     department: {
-//         type: "String",
-//         enum: ['Human Resource', 'Public Relation', 'Audit', 'Finance', 'Research & Monitoring Evaluation', 'Shipper Services'],
-//         required: true
-//     },
-//     timeIn: {
-//         type: "String",
-//         required: true
-//     },
-//     timeOut: {
-//         type: "String",
-//         required: true
-//     },
-//     outcome: {
-//         type: "String",
-//         required: true
-//     },
-//     MIS_Officer: {
-//         type: "String",
-//         enum: ['Ben','Daniel', 'NSP'],
-//         required: true
-//     },
-//     confirmationOfficer: {
-//         type: "String",
-//         required: true
-//     },
-// }) 
-
-
-
-
-// const UserComplaint = mongoose.model('UserComplaint', complaintSchema)
-
-// export default UserComplaint;

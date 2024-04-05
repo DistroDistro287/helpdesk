@@ -1,17 +1,19 @@
-clear out form fields
+clear out form fields - 1
 
-email: when complaint officer receives and clicks a button in mail once, shouldn;t be able to select again (tokenize??)
+work on ui.. add toasts for validity checks - 1
 
-work on ui.. add toasts for validity checks
+delete button should confirm delete before deletion - 1
 
-delete button should confirm delete before deletion
+email: add a status (boolean property) to check if complaint officer has clicked on the button or not - 1
 
-send mail button shold be grayed out after sending mail
+email: when complaint officer receives and clicks a button in mail once, shouldn;t be able to select again (tokenize??) - 1
 
-email: add a status (boolean property) to check if complaint officer has clicked on the button or not
+Detailed Issue column should go down in complaint details - 1
 
-"Update" -> "Edit"
+complaints tab should not have all fields shown. limit to about 3 columns; issue column should be truncated - 1
 
-Detailed Issue column should go down in complaint details
+send mail button shold be grayed out after sending mail 
 
-complaints tab should not have all fields shown. limit to about 3 columns; issue column should be truncated
+update 'send mail' state so if email has already been sent, button is disabled even after page reload - 
+add toast to 'send mail'
+subnet .12 52572388

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import ComplaintDetails from "../components/ComplaintDetails";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 function Complaints() {
   const [complaints, setComplaints] = useState([]);
@@ -34,9 +38,11 @@ function Complaints() {
 
   const handleComplaintDelete = async (id) => {
     console.log('Deleting complaint with ID:', id);
+    const url = `https://helpdesk-back.glitch.me/api/complaints/remove-complaint/${id}`
+    // const url = `http://localhost:5000/api/complaints/remove-complaint/${id}`
 
     try {
-      const response = await fetch(`https://helpdesk-back.glitch.me/api/complaints/remove-complaint/${id}`, {
+      const response = await fetch(`${url}`, {
         method: 'DELETE'
       });
       const json = await response.json();
@@ -44,8 +50,10 @@ function Complaints() {
       if (response.ok) {
         setComplaints(complaints.filter(complaint => complaint._id !== id));
         console.log("Complaint deleted successfully:", json.message);
-        alert("Complaint Deleted");
+        toast.success("Complaint Deleted");
+        window.location.reload(true)
       } else {
+        toast.error("Failed to delete complaint:");
         console.error("Failed to delete complaint:", json.error);
       }
     } catch (error) {
@@ -73,6 +81,7 @@ function Complaints() {
     <>
       <div className="content">
         <Card>
+          <ToastContainer />
           <CardHeader>
             <CardTitle tag="h5">Complaints</CardTitle>
           </CardHeader>
@@ -80,14 +89,10 @@ function Complaints() {
             <thead className="text-primary">
               <tr>
                 <th>#</th>
-                <th>Date</th>
-                <th>Detailed<br />Issue</th>
-                <th>Department</th>
-                <th>Time<br />In</th>
-                <th>Time<br />Out</th>
-                <th>Outcome</th>
-                <th>MIS<br />Officer</th>
                 <th>Confirmation<br />Officer</th>
+                <th>Date</th>
+                <th>Department</th>
+                <th>Issue</th>
                 <th>Feedback</th>
                 <th>Action</th>
               </tr>
@@ -96,15 +101,12 @@ function Complaints() {
               {complaints.map((complaint, index) => (
                 <tr key={complaint._id}>
                   <td>{index + 1}</td>
-                  <td>{complaint.date}</td>
-                  <td>{complaint.issue}</td>
-                  <td>{complaint.department}</td>
-                  <td>{complaint.timeIn}</td>
-                  <td>{complaint.timeOut}</td>
-                  <td>{complaint.outcome}</td>
-                  <td>{complaint.MIS_Officer}</td>
                   <td>{complaint.confirmationOfficer}</td>
+                  <td>{complaint.date}</td>
+                  <td>{complaint.department}</td>
+                  <td>{complaint.issue.split(' ').slice(0, 5).join(' ')} {complaint.issue.split(' ').length > 5 && '\n\n...'}</td>
                   <td>{complaint.confirmationOfficerFeedback}</td>
+                  
                   <td>
                     <Button
                       color="primary"

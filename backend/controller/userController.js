@@ -97,21 +97,6 @@ const sendConfirmationEmail = asyncHandler(async (req, res) => {
     const confirmSatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=true`;
     const confirmDissatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=false`;
 
-
-    // let transporter = nodemailer.createTransport({
-    //     service: 'outlook',
-    //     port: 587,
-    //     secure: false, 
-    //     auth: {
-    //       user: 'mis@shippers.org.gh',
-    //       pass: 'Ship1234', 
-    //     },
-    //     tls: {
-    //       ciphers: 'SSLv3',
-    //       rejectUnauthorized: true,
-    //     },
-    //   });
-
     let transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
@@ -184,30 +169,6 @@ const sendConfirmationEmail = asyncHandler(async (req, res) => {
 
 
 
-  const confirmFeedback = asyncHandler(async (req, res) => {
-    const satisfactionConfirmation = req.query['confirm-satisfaction']; 
-    const { id } = req.params;
-    const complaint = await UserComplaint.findById(id);
-  
-    if (!complaint) {
-      res.status(404);
-      throw new Error('Complaint not found');
-    }
-
-    // console.log('feedback is: ', req.query.feedback)
-    
-    if (feedback === 'satisfied') {
-        console.log("in feedback ID is - ", id)
-        res.status(200).json({message: "Satisfaction confirmed"});
-    } else if (feedback === 'dissatisfied') {
-        console.log("in feedback,ID is - ", id)
-        res.status(200).json({ message: 'Dissatisfaction confirmed' });
-    } else {
-        res.status(400).json({ error: 'Invalid confirmation value' });
-    }
-    // res.json(feedback)
-})
-
 
 const confirmSatisfaction = asyncHandler(async (req, res) => {
     try {
@@ -220,18 +181,109 @@ const confirmSatisfaction = asyncHandler(async (req, res) => {
           throw new Error('Complaint not found');
         }
 
+        // check if officer already recevied a mail and confirmed or
+        if (complaint.satisfactionConfirmed) {
+            // return res.status(400).json({ message: "Satisfaction status already confirmed" });
+            return res.status(400).send(
+                `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Helpdesk - Confirmation Status</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px;">
+                
+                  <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+                    <h1 style="color: #333; margin-bottom: 20px;">Confirmation Status</h1>
+                    <p style="color: #666; font-size: 16px;">Your response has already been recorded.</p>
+                    <p style="color: #666; font-size: 16px;">Thank you</p>
+                  </div>
+                </body>
+                </html>
+                
+                `
+            );
+        }
+
         if (satisfactionConfirmation === 'true') {
             complaint.confirmationOfficerFeedback = "Satisfied"
+            complaint.satisfactionConfirmed = true;
             await complaint.save();
 
             console.log("Confirmation complaint is - ", complaint.confirmationOfficerFeedback)
-            res.status(200).json({ message: "Satisfaction confirmed" });
+            // res.status(200).json({ message: "Satisfaction confirmed" });
+            return res.status(200).send(
+                `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Helpdesk - Confirmation status</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px;">
+                
+                  <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+                    <h1 style="color: #333; margin-bottom: 20px;">Confirmation Status</h1>
+                    <p style="color: #666; font-size: 16px;">Your response has been recorded.</p>
+                    <p style="color: #666; font-size: 16px;">Thank you</p>
+                  </div>
+                </body>
+                </html>
+                
+                `
+            );
         } else if (satisfactionConfirmation === 'false') {
             complaint.confirmationOfficerFeedback = "Not Satisfied"
+            complaint.satisfactionConfirmed = true;
             await complaint.save();
-            res.status(200).json({ message: "Dissatisfaction confirmed" });
+            // res.status(200).json({ message: "Dissatisfaction confirmed" });
+            return res.status(200).send(
+                `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Helpdesk - Confirmation status</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px;">
+                
+                  <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+                    <h1 style="color: #333; margin-bottom: 20px;">Confirmation Status</h1>
+                    <p style="color: #666; font-size: 16px;">Your response has been recorded.</p>
+                    <p style="color: #666; font-size: 16px;">Thank you</p>
+                  </div>
+                </body>
+                </html>
+                
+                `
+            );
         } else {
-            res.status(400).json({ message: "Invalid satisfaction confirmation value" });
+            // res.status(400).json({ message: "Invalid satisfaction confirmation value" });
+            return res.status(400).send(
+                `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Helpdesk - Confirmation status</title>
+                </head>
+                <body style="font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px;">
+                
+                  <div style="background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+                    <h1 style="color: #333; margin-bottom: 20px;">Confirmation Status</h1>
+                    <p style="color: #666; font-size: 16px;">Received an invalid response.</p>
+                    <p style="color: #666; font-size: 16px;">Kindly contact MIS for assistance</p>
+                  </div>
+                </body>
+                </html>
+                
+                `
+            );
         }
     } catch (error) {
         console.error("Error confirming satisfaction:", error);
@@ -239,10 +291,6 @@ const confirmSatisfaction = asyncHandler(async (req, res) => {
     }
 })
 
-const confirmDissatisfaction = asyncHandler(async (req, res) => {
-    console.log('user dissatisfaction ')
-    res.status(201).json({message: "Dissatisfaction confirmed"})
-})
 
 
 
@@ -254,7 +302,5 @@ export {
     updateComplaint, 
     removeComplaint,
     sendConfirmationEmail,
-    confirmFeedback,
-    confirmSatisfaction,
-    confirmDissatisfaction
+    confirmSatisfaction
 }

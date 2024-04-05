@@ -7,6 +7,8 @@ import {
     Label
   } from 'reactstrap';
 
+  import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
   
 const NewComplaint = () => {
   // const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
@@ -29,54 +31,109 @@ const NewComplaint = () => {
       setSelectedOption(e.target.value);
     };
   
-    const clearSelection = () => {
-      setSelectedOption("hidden");
+    const clearFormFields = () => {
+        document.getElementById("form").reset();
     }
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+  //   const handleSubmit = async (e) => {
+  //     e.preventDefault();
 
-      console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
+  //     console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
 
-    const complaint = {
-      email, 
-      date, 
-      issue, 
-      department, 
-      timeIn, 
-      timeOut, 
-      outcome, 
-      MIS_Officer, 
-      confirmationOfficer, 
-      confirmationOfficerFeedback
-    }
-    const response = await fetch(`${url}`, {
-      method: 'POST', 
-      body: JSON.stringify(complaint),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+  //   const complaint = {
+  //     email, 
+  //     date, 
+  //     issue, 
+  //     department, 
+  //     timeIn, 
+  //     timeOut, 
+  //     outcome, 
+  //     MIS_Officer, 
+  //     confirmationOfficer, 
+  //     confirmationOfficerFeedback
+  //   }
+  //   const response = await fetch(`${url}`, {
+  //     method: 'POST', 
+  //     body: JSON.stringify(complaint),
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     }
 
-    })
-    const json = await response.json()
+  //   })
+  //   const json = await response.json()
 
-    if(!response.ok) {
-      setError(json.error)
-    }
+  //   if(!response.ok) {
+  //     // setError(json.error)
+  //     // toast.error()
+  //     // console.error(json.error)
+  //   }
     
-    if (response.ok) {
-      setEmail('')
-      setDate('')
-      setIssue('')
-      setDepartment('')
-      setTimeIn('')
-      setTimeOut('')
-      setOutcome('')
-      setMIS_Officer('')
-      setConfirmationOfficer('')
-      console.log("Added ", json)
+  //   if (response.ok) {
+  //     setEmail("")
+  //     setDate("")
+  //     setIssue("")
+  //     setDepartment("")
+  //     setTimeIn("")
+  //     setTimeOut("")
+  //     setOutcome("")
+  //     setMIS_Officer("")
+  //     setConfirmationOfficer("")
+  //     toast.success("Complaint Added!")
+  //     clearFormFields();
+  //     console.log("Added ", json)
+  //   }
+  // }
+
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const complaint = {
+        email,
+        date,
+        issue,
+        department,
+        timeIn,
+        timeOut,
+        outcome,
+        MIS_Officer,
+        confirmationOfficer,
+        confirmationOfficerFeedback
+      };
+      const response = await fetch(`${url}`, {
+        method: 'POST',
+        body: JSON.stringify(complaint),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to submit complaint.\nKindly fill all fields!');
+      }
+      const json = await response.json();
+  
+      setEmail("");
+      setDate("");
+      setIssue("");
+      setDepartment("");
+      setTimeIn("");
+      setTimeOut("");
+      setOutcome("");
+      setMIS_Officer("");
+      setConfirmationOfficer("");
+      toast.success("Complaint Added!");
+      clearFormFields();
+      console.log("Added ", json);
+    } catch (err) {
+      setError(err.message); 
+      toast.error(error);
     }
-  }
+  };
+
+
 
 
   return (
@@ -85,7 +142,8 @@ const NewComplaint = () => {
         <br></br>
         <br></br>
         <br></br>
-        <Form className="form" onSubmit={handleSubmit}>
+        <Form className="form" id="form" onSubmit={handleSubmit}>
+          <ToastContainer/>
           <FormGroup>
             <Label for="email">Email</Label>
             <Input
@@ -190,7 +248,6 @@ const NewComplaint = () => {
               value={confirmationOfficer}
             />
           </FormGroup>
-          {error && <p>{error}</p>}
         <Button>Submit</Button>
 
       </Form>

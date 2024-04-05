@@ -1,34 +1,30 @@
 import React, { useEffect, useState} from "react";
-import { Card, CardHeader, CardBody, CardTitle, Table, Button, ButtonGroup, Form, FormGroup, Input, Label } from "reactstrap";
+import {  Card, CardHeader, CardBody, CardTitle, CardText, Table, Button, ButtonGroup, Form, FormGroup, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from "reactstrap";
 import { useSearchParams } from "react-router-dom";
-
-
+import ConfirmDelete from "./ConfirmDelete";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDelete, showUpdateForm, onClose }) => {
     const [confirmationFeedback, setConfirmationFeedback] = useState("");
     const [searchParams, setSearchParams] = useSearchParams();
+    const [modal, setModal] = useState(false);
+    const [confirmationMessage, setConfirmationMessage] = useState(null);
+    const [mailStatus, setMailStatus] = useState(false)
     
+    const toggleModal = () => {
+      setModal(!modal);
+    };
 
+    const toggleMailStatus = () => {
+      setMailStatus(true)
+      console.log("toggled")
+    }
 
-    // useEffect(() => {
-    //     const fetchConfirmationFeedback = async (props) => {
-    //         try {
-    //             // searchParams.get("feedback")
-
-    //             // const response = await fetch(`http://localhost:5000/api/complaints/confirm-feedback?`);
-    //             // const data = await response.json();
-    //             // setConfirmationFeedback(data.message);
-    //             // console.log("Confirmation Feedback:", data.message);
-    //             console.log("params is ", searchParams.get("feedback"))
-    //         } catch (error) {
-    //             console.error("Error fetching confirmation feedback:", error);
-    //         }
-    //     };
-    //     fetchConfirmationFeedback();
-    // }, []); 
-    
-  
+    const handleViewComplaint = () => {
+      toggleModal();
+    };
 
 if (!complaint) {
     return null; 
@@ -44,29 +40,33 @@ const sendMail = async () => {
         },
         body: JSON.stringify({ email: complaint.email, id: complaint._id })
       });
+      toast.success("Mail sent!")
+      toggleMailStatus()
       console.log("Email sent successfully!");
     } catch (error) {
+      toast.error("Error sending email. Please try again", error);
       console.error("Error sending email:", error);
     }
   }
-  
+
 
   return (
     <div>
       <Card>
+      <ToastContainer />
         <CardHeader>
         </CardHeader>
-        {console.log("complaint in complaintDetails is ", complaint)}
+        {/* {console.log("complaint in complaintDetails is ", complaint)} */}
         <CardBody>
-          <Table striped hover>
+          {/* <Table striped hover>
             <tbody>
+            <tr>
+              <th>Confirmation Officer</th>
+              <td>{complaint.confirmationOfficer}</td>
+            </tr>
               <tr>
                 <th>Date</th>
                 <td>{complaint.date}</td>
-              </tr>
-              <tr>
-                <th>Detailed Issue</th>
-                <td>{complaint.issue}</td>
               </tr>
               <tr>
                 <th>Department</th>
@@ -85,36 +85,98 @@ const sendMail = async () => {
               <td>{complaint.MIS_Officer}</td>
             </tr>
             <tr>
-              <th>Confirmation Officer</th>
-              <td>{complaint.confirmationOfficer}</td>
-            </tr>
-            <tr>
               <th>Confirmation Officer Feedback</th>
               <td>{complaint.confirmationOfficerFeedback}</td>
             </tr>
+            <tr>
+              <th>Detailed Issue</th>
+            </tr>
+            <tr style={{width: '100%'}}>
+            <td style={{width: '100%'}}>
+              <textarea
+                value={complaint.issue}
+                style={{ width: '100%', height: '200px', resize: 'none' }}
+                readOnly
+              />
+            </td>
+            </tr>
             </tbody>
-          </Table>
+          </Table>  */}
+          <div className="d-flex flex-column">
+            <Row className="my-2">
+              <Col>Confirmation Officer</Col>
+              <Col>{complaint.confirmationOfficer}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Date</Col>
+              <Col>{complaint.date}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Department</Col>
+              <Col>{complaint.department}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Feedback</Col>
+              <Col>{complaint.confirmationOfficerFeedback}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Time In</Col>
+              <Col>{complaint.timeIn}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Time Out</Col>
+              <Col>{complaint.timeOut}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Outcome</Col>
+              <Col>{complaint.outcome}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>MIS Officer</Col>
+              <Col>{complaint.MIS_Officer}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col>Issue</Col>
+              <Row className="my-2">
+                {complaint.issue}
+              </Row>
+            </Row>
+          </div>
         </CardBody>
         <ButtonGroup>
           <Button 
           color="primary"
           onClick={() => handleComplaintUpdate(complaint)}
           >
-            Update
+            Edit
           </Button>
           <Button 
             color="danger"
-            onClick={() => handleComplaintDelete(complaint._id)}>
+            onClick={() => handleViewComplaint()}>
             Delete
           </Button>
           <Button 
-            color="warning"
-            onClick = {sendMail}
+            color="secondary"
+            onClick={sendMail}
+            disabled={mailStatus} 
           >
-            Send Mail
+            {mailStatus ? "Mail Sent":"Send Mail"}
           </Button>
+
         </ButtonGroup>
       </Card>
+
+      <Modal isOpen={modal} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>Confirm Delete</ModalHeader>
+        <ModalBody>
+          <ConfirmDelete handleComplaintDelete={handleComplaintDelete} complaint={complaint} toggle={toggleModal}/>
+        </ModalBody>
+        <ModalFooter>
+          <Button 
+            color="danger"
+            onClick={() => toggleModal()}>Close</Button>
+        </ModalFooter>
+      </Modal>
 
       {complaint && showUpdateForm && (
         <div>
@@ -178,16 +240,6 @@ const UpdateForm = ({ complaint }) => {
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label for="issue">Detailed Issue</Label>
-          <Input
-            type="textarea"
-            name="issue"
-            id="issue"
-            value={issue}
-            onChange={(e) => setIssue(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -266,6 +318,16 @@ const UpdateForm = ({ complaint }) => {
                 value={confirmationOfficer}
               />
             </FormGroup>
+            <FormGroup>
+          <Label for="issue">Detailed Issue</Label>
+          <Input
+            type="textarea"
+            name="issue"
+            id="issue"
+            value={issue}
+            onChange={(e) => setIssue(e.target.value)}
+          />
+        </FormGroup>
         <Button type="submit" color="primary">Update</Button>
       </Form>
     );
