@@ -91,8 +91,8 @@ const sendConfirmationEmail = asyncHandler(async (req, res) => {
     const email = req.body.email
     const id = req.body.id
     
-    // const API_URL = "https://helpdesk-back.glitch.me/api/complaints"
-    const API_URL = "http://localhost:5000/api/complaints"
+    const API_URL = "https://helpdesk-back.glitch.me/api/complaints"
+    // const API_URL = "http://localhost:5000/api/complaints"
 
     const confirmSatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=true`;
     const confirmDissatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=false`;

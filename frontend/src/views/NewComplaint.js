@@ -11,8 +11,8 @@ import {
   import 'react-toastify/dist/ReactToastify.css';
   
 const NewComplaint = () => {
-  // const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
-  const url = "http://localhost:5000/api/complaints/send-complaint"
+  const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
+  // const url = "http://localhost:5000/api/complaints/send-complaint"
   const [email, setEmail] = useState("")
   const [date, setDate] = useState("")
   const [issue, setIssue] = useState("")

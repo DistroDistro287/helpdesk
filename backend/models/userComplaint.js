@@ -66,7 +66,7 @@ complaintSchema.virtual('formattedDate').get(function() {
     return formatDate(this.date);
 });
 
-// Function to format date as DD-MM-YY
+// format date as DD-MM-YY
 function formatDate(date) {
     const d = new Date(date);
     const year = d.getFullYear().toString().slice(2);

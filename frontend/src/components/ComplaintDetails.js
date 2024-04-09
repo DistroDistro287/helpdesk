@@ -12,6 +12,7 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
     const [modal, setModal] = useState(false);
     const [confirmationMessage, setConfirmationMessage] = useState(null);
     const [mailStatus, setMailStatus] = useState(false)
+    const [result, setResult] = useState("")
     
     const toggleModal = () => {
       setModal(!modal);
@@ -19,35 +20,47 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
 
     const toggleMailStatus = () => {
       setMailStatus(true)
+      localStorage.setItem('mailStatus', true)
       console.log("toggled")
     }
-
+    
     const handleViewComplaint = () => {
       toggleModal();
     };
-
-if (!complaint) {
-    return null; 
-  }
-
-
-const sendMail = async () => {
-    try {
-      await fetch("http://localhost:5000/api/complaints/send-email", {
+    
+    if (!complaint) {
+      return null; 
+    }
+    
+    
+    const sendMail = async () => {
+      toggleMailStatus()
+      alert('Mail Sent')
+      try {
+      await fetch("https://helpdesk-back.glitch.me/api/complaints/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ email: complaint.email, id: complaint._id })
+        
       });
-      toast.success("Mail sent!")
-      toggleMailStatus()
+
+      // toast.success("Mail sent!")
       console.log("Email sent successfully!");
     } catch (error) {
       toast.error("Error sending email. Please try again", error);
       console.error("Error sending email:", error);
     }
   }
+
+
+
+
+
+
+// 
+
 
 
   return (
@@ -104,43 +117,45 @@ const sendMail = async () => {
           </Table>  */}
           <div className="d-flex flex-column">
             <Row className="my-2">
-              <Col>Confirmation Officer</Col>
+              <Col><strong>CONFIRMATION OFFICER</strong></Col>
               <Col>{complaint.confirmationOfficer}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Date</Col>
+              <Col><strong>DATE</strong></Col>
               <Col>{complaint.date}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Department</Col>
+              <Col><strong>DEPARTMENT</strong></Col>
               <Col>{complaint.department}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Feedback</Col>
+              <Col><strong>FEEDBACK</strong></Col>
               <Col>{complaint.confirmationOfficerFeedback}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Time In</Col>
+              <Col><strong>TIME IN</strong></Col>
               <Col>{complaint.timeIn}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Time Out</Col>
+              <Col><strong>TIME OUT</strong></Col>
               <Col>{complaint.timeOut}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Outcome</Col>
+              <Col><strong>OUTCOME</strong></Col>
               <Col>{complaint.outcome}</Col>
             </Row>
             <Row className="my-2">
-              <Col>MIS Officer</Col>
+              <Col><strong>MIS OFFICER</strong></Col>
               <Col>{complaint.MIS_Officer}</Col>
             </Row>
             <Row className="my-2">
-              <Col>Issue</Col>
-              <Row className="my-2">
-                {complaint.issue}
-              </Row>
+              <Col><strong>ISSUE</strong></Col>
             </Row>
+              <Row className="my-2">
+                <Col className="">
+                  {complaint.issue}
+                </Col>
+              </Row>
           </div>
         </CardBody>
         <ButtonGroup>
@@ -209,7 +224,8 @@ const UpdateForm = ({ complaint }) => {
       const updatedComplaint = { date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer };
       
       try {
-        const response = await fetch(`http://localhost:5000/api/complaints/update-complaint/${id}`, {
+        // const response = await fetch(`http://localhost:5000/api/complaints/update-complaint/${id}`, {
+        const response = await fetch(`https://helpdesk-back.glitch.me/api/complaints/update-complaint/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

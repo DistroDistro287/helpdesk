@@ -15,8 +15,8 @@ function Complaints() {
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-          // const url = "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
-  const url = "http://localhost:5000/api/complaints/get-complaints"
+          const url = "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
+  // const url = "http://localhost:5000/api/complaints/get-complaints"
         const response = await fetch(`${url}`);
         const json = await response.json();
 
