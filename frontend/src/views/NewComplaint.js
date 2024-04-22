@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import {
     Button,
     Form,
@@ -9,10 +9,10 @@ import {
 
   import { ToastContainer, toast } from 'react-toastify';
   import 'react-toastify/dist/ReactToastify.css';
+import apiConfig from '../apiConfig.mjs';
   
 const NewComplaint = () => {
-  const url = "https://helpdesk-back.glitch.me/api/complaints/send-complaint"
-  // const url = "http://localhost:5000/api/complaints/send-complaint"
+  const url = `${apiConfig.API_URL}/send-complaint`
   const [email, setEmail] = useState("")
   const [date, setDate] = useState("")
   const [issue, setIssue] = useState("")
@@ -23,6 +23,10 @@ const NewComplaint = () => {
   const [MIS_Officer, setMIS_Officer] = useState("")
   const [confirmationOfficer, setConfirmationOfficer] = useState("")
   const [confirmationOfficerFeedback, setConfirmationOfficerFeedback] = useState("")
+  const [category, setCategory] = useState(""); 
+  const [categoryOptions, setCategoryOptions] = useState(["Software", "Hardware", "Network"]);
+  // const [categoryOptions, setCategoryOptions] = useState([]);
+
   const [error, setError] = useState('')
 
   const [selectedOption, setSelectedOption] = useState("");
@@ -34,57 +38,22 @@ const NewComplaint = () => {
     const clearFormFields = () => {
         document.getElementById("form").reset();
     }
+  
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-
-  //     console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
-
-  //   const complaint = {
-  //     email, 
-  //     date, 
-  //     issue, 
-  //     department, 
-  //     timeIn, 
-  //     timeOut, 
-  //     outcome, 
-  //     MIS_Officer, 
-  //     confirmationOfficer, 
-  //     confirmationOfficerFeedback
-  //   }
-  //   const response = await fetch(`${url}`, {
-  //     method: 'POST', 
-  //     body: JSON.stringify(complaint),
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     }
-
-  //   })
-  //   const json = await response.json()
-
-  //   if(!response.ok) {
-  //     // setError(json.error)
-  //     // toast.error()
-  //     // console.error(json.error)
-  //   }
-    
-  //   if (response.ok) {
-  //     setEmail("")
-  //     setDate("")
-  //     setIssue("")
-  //     setDepartment("")
-  //     setTimeIn("")
-  //     setTimeOut("")
-  //     setOutcome("")
-  //     setMIS_Officer("")
-  //     setConfirmationOfficer("")
-  //     toast.success("Complaint Added!")
-  //     clearFormFields();
-  //     console.log("Added ", json)
-  //   }
-  // }
-
-
+    // useEffect(() => {
+    //   // Fetch category options from API or local storage
+    //   const fetchCategoryOptions = async () => {
+    //     try {
+    //       // Here, you can fetch the category options from an API endpoint or any other data source
+    //       const fetchedCategoryOptions = ["Software", "Hardware", "Network"]; // Example: Replace with your actual fetch logic
+    //       setCategoryOptions(fetchedCategoryOptions);
+    //     } catch (error) {
+    //       console.error("Failed to fetch category options:", error);
+    //     }
+    //   };
+  
+    //   fetchCategoryOptions();
+    // }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,7 +69,8 @@ const NewComplaint = () => {
         outcome,
         MIS_Officer,
         confirmationOfficer,
-        confirmationOfficerFeedback
+        confirmationOfficerFeedback,
+        category
       };
       const response = await fetch(`${url}`, {
         method: 'POST',
@@ -124,6 +94,7 @@ const NewComplaint = () => {
       setOutcome("");
       setMIS_Officer("");
       setConfirmationOfficer("");
+      setCategory("");
       toast.success("Complaint Added!");
       clearFormFields();
       console.log("Added ", json);
@@ -221,6 +192,7 @@ const NewComplaint = () => {
                 <option value="" hidden>Outcome</option>
                 <option value={"Resolved"}>Resolved</option>
                 <option value={"Not Resolved"}>Not Resolved</option>
+                <option value={"Pending"}>Pending</option>
             </Input>
           </FormGroup>
           <FormGroup>
@@ -248,6 +220,21 @@ const NewComplaint = () => {
               value={confirmationOfficer}
             />
           </FormGroup>
+          <FormGroup>
+          <Label for="category">Category</Label>
+          <Input
+            type="select"
+            name="category"
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Select Category</option>
+            {categoryOptions.map((categoryOption) => (
+              <option key={categoryOption} value={categoryOption}>{categoryOption}</option>
+            ))}
+          </Input>
+        </FormGroup>
         <Button>Submit</Button>
 
       </Form>

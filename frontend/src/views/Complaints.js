@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import ComplaintDetails from "../components/ComplaintDetails";
+import ComplaintDetails from "../components/ComplaintDetails.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import apiConfig from "../apiConfig.mjs";
+
 
 
 
@@ -12,11 +14,11 @@ function Complaints() {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [modal, setModal] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchComplaints = async () => {
       try {
-          const url = "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
-  // const url = "http://localhost:5000/api/complaints/get-complaints"
+          // const url = "https://helpdesk-back.glitch.me/api/complaints/get-complaints"
+    const url = `${apiConfig.API_URL}/get-complaints`
         const response = await fetch(`${url}`);
         const json = await response.json();
 
@@ -38,8 +40,8 @@ function Complaints() {
 
   const handleComplaintDelete = async (id) => {
     console.log('Deleting complaint with ID:', id);
-    const url = `https://helpdesk-back.glitch.me/api/complaints/remove-complaint/${id}`
-    // const url = `http://localhost:5000/api/complaints/remove-complaint/${id}`
+    // const url = `https://helpdesk-back.glitch.me/api/complaints/remove-complaint/${id}`
+    const url = `${apiConfig.API_URL}/remove-complaint/${id}`
 
     try {
       const response = await fetch(`${url}`, {

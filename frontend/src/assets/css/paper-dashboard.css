@@ -4808,9 +4808,10 @@ License - nucleoapp.com/license/
 
 /*# sourceMappingURL=paper-dashboard.css.map */
 
-.badge-danger {
+.badge-danger, .point {
   cursor: pointer;
 }
+
 
 
 

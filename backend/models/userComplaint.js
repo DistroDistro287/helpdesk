@@ -49,6 +49,14 @@ const complaintSchema = mongoose.Schema({
     satisfactionConfirmed: {
         type: Boolean,
         default: false
+    },
+    lastClickedDateTime: {
+        type: Date,
+        default: null
+    },
+    category: {
+        type: "String",
+        enum: ['Software', 'Hardware', 'Network']
     }
 }, {
     // virtual property to format date as DD-MM-YY

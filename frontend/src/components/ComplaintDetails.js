@@ -1,9 +1,10 @@
 import React, { useEffect, useState} from "react";
 import {  Card, CardHeader, CardBody, CardTitle, CardText, Table, Button, ButtonGroup, Form, FormGroup, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from "reactstrap";
 import { useSearchParams } from "react-router-dom";
-import ConfirmDelete from "./ConfirmDelete";
+import ConfirmDelete from "./ConfirmDelete.js";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import apiConfig from "../apiConfig.mjs";
 
 
 const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDelete, showUpdateForm, onClose }) => {
@@ -13,16 +14,18 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
     const [confirmationMessage, setConfirmationMessage] = useState(null);
     const [mailStatus, setMailStatus] = useState(false)
     const [result, setResult] = useState("")
+    const [lastClickedDateTime, setLastClickedDateTime] = useState(null);
+    
     
     const toggleModal = () => {
       setModal(!modal);
     };
 
-    const toggleMailStatus = () => {
-      setMailStatus(true)
-      localStorage.setItem('mailStatus', true)
-      console.log("toggled")
-    }
+    // const toggleMailStatus = () => {
+    //   setMailStatus(true)
+    //   localStorage.setItem('mailStatus', true)
+    //   console.log("toggled")
+    // }
     
     const handleViewComplaint = () => {
       toggleModal();
@@ -34,17 +37,20 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
     
     
     const sendMail = async () => {
-      toggleMailStatus()
+      // // toggleMailStatus()
+      // const dateTime = new Date().toLocaleString();
+      // setLastClickedDateTime(dateTime);
       alert('Mail Sent')
+      formatLastCLickDateTime()
       try {
-      await fetch("https://helpdesk-back.glitch.me/api/complaints/send-email", {
+      await fetch(`${apiConfig.API_URL}/send-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ email: complaint.email, id: complaint._id })
-        
       });
+
 
       // toast.success("Mail sent!")
       console.log("Email sent successfully!");
@@ -55,13 +61,13 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
   }
 
 
-
-
-
-
-// 
-
-
+  const formatLastCLickDateTime = () => {
+    const lastClickedDateTime = complaint.lastClickedDateTime || "";
+    const dateObject = new Date(lastClickedDateTime);
+    const formattedDateTime = `${dateObject.toLocaleDateString()} ${dateObject.toLocaleTimeString()}`;
+    setLastClickedDateTime(formattedDateTime)
+    console.log(formattedDateTime); 
+  }
 
   return (
     <div>
@@ -69,52 +75,7 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
       <ToastContainer />
         <CardHeader>
         </CardHeader>
-        {/* {console.log("complaint in complaintDetails is ", complaint)} */}
         <CardBody>
-          {/* <Table striped hover>
-            <tbody>
-            <tr>
-              <th>Confirmation Officer</th>
-              <td>{complaint.confirmationOfficer}</td>
-            </tr>
-              <tr>
-                <th>Date</th>
-                <td>{complaint.date}</td>
-              </tr>
-              <tr>
-                <th>Department</th>
-                <td>{complaint.department}</td>
-              </tr>
-              <tr>
-              <th>Time In</th>
-              <td>{complaint.timeIn}</td>
-            </tr>
-            <tr>
-              <th>Outcome</th>
-              <td>{complaint.outcome}</td>
-            </tr>
-            <tr>
-              <th>MIS Officer</th>
-              <td>{complaint.MIS_Officer}</td>
-            </tr>
-            <tr>
-              <th>Confirmation Officer Feedback</th>
-              <td>{complaint.confirmationOfficerFeedback}</td>
-            </tr>
-            <tr>
-              <th>Detailed Issue</th>
-            </tr>
-            <tr style={{width: '100%'}}>
-            <td style={{width: '100%'}}>
-              <textarea
-                value={complaint.issue}
-                style={{ width: '100%', height: '200px', resize: 'none' }}
-                readOnly
-              />
-            </td>
-            </tr>
-            </tbody>
-          </Table>  */}
           <div className="d-flex flex-column">
             <Row className="my-2">
               <Col><strong>CONFIRMATION OFFICER</strong></Col>
@@ -127,6 +88,10 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
             <Row className="my-2">
               <Col><strong>DEPARTMENT</strong></Col>
               <Col>{complaint.department}</Col>
+            </Row>
+            <Row className="my-2">
+              <Col><strong>CATEGORY</strong></Col>
+              <Col>{complaint.category}</Col>
             </Row>
             <Row className="my-2">
               <Col><strong>FEEDBACK</strong></Col>
@@ -173,9 +138,11 @@ const ComplaintDetails = ({ complaint, handleComplaintUpdate, handleComplaintDel
           <Button 
             color="secondary"
             onClick={sendMail}
-            disabled={mailStatus} 
+            disabled={complaint.satisfactionConfirmed}
           >
-            {mailStatus ? "Mail Sent":"Send Mail"}
+            { complaint.satisfactionConfirmed ? "Mail Sent":"Send Mail"}  
+            <br/><small>Last Clicked - {new Date(complaint.lastClickedDateTime).toLocaleString()}</small>
+            
           </Button>
 
         </ButtonGroup>
@@ -216,16 +183,19 @@ const UpdateForm = ({ complaint }) => {
     const [confirmationOfficer, setConfirmationOfficer] = useState(complaint.confirmationOfficer)
     const [complaints, setComplaints] = useState("")
     const [id, setId] = useState(complaint._id)
+    const [category, setCategory] = useState(""); 
+    const [categoryOptions, setCategoryOptions] = useState(["Software", "Hardware", "Network"]);
+
+    
   
     console.log('id is ', id)
   
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const updatedComplaint = { date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer };
+      const updatedComplaint = { date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer, category };
       
       try {
-        // const response = await fetch(`http://localhost:5000/api/complaints/update-complaint/${id}`, {
-        const response = await fetch(`https://helpdesk-back.glitch.me/api/complaints/update-complaint/${id}`, {
+        const response = await fetch(`${apiConfig.API_URL}/update-complaint/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -251,7 +221,7 @@ const UpdateForm = ({ complaint }) => {
         <FormGroup>
           <Label for="date">Date</Label>
           <Input
-            type="text"
+            type="date"
             name="date"
             id="date"
             value={date}
@@ -274,6 +244,22 @@ const UpdateForm = ({ complaint }) => {
             <option value="Finance">Finance</option>
             <option value="Research & Monitoring Evaluation">Research & Monitoring Evaluation</option>
             <option value="Shipper Services">Shipper Services</option>
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label for="category">Category</Label>
+          <Input
+            type={"select"}
+            name="category"
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="" hidden>{category}</option>
+            <option value=""></option>
+            {categoryOptions.map((categoryOption) => (
+              <option key={categoryOption} value={categoryOption}>{categoryOption}</option>
+            ))}
           </Input>
         </FormGroup>
         <FormGroup>
@@ -304,7 +290,7 @@ const UpdateForm = ({ complaint }) => {
                 id="outcome"
                 onChange={(e)=>setOutcome(e.target.value)}
               >
-                  <option value="" hidden>Outcome</option>
+                  <option value="" hidden>{outcome}</option>
                   <option value={"Resolved"}>Resolved</option>
                   <option value={"Not Resolved"}>Not Resolved</option>
               </Input>
@@ -317,7 +303,7 @@ const UpdateForm = ({ complaint }) => {
                 id="mis-officer"
                 onChange={(e)=>setMIS_Officer(e.target.value)}
               >
-                  <option value="" hidden>MIS Officer</option>
+                  <option value="" hidden>{confirmationOfficer}</option>
                   <option value={"Ben"}>Ben</option>
                   <option value={"Daniel"}>Daniel</option>
                   <option value={"NSP"}>NSP</option>

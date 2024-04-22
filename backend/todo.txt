@@ -16,4 +16,10 @@ send mail button shold be grayed out after sending mail
 
 update 'send mail' state so if email has already been sent, button is disabled even after page reload - 
 add toast to 'send mail'
-subnet .12 52572388
+subnet .12 5a2b5dd7238kl8
+
+dashboard should display categories of complaints: RESOLVED, UNRESOLVED, PENDING, SOFTWARE, INTERNET ISSUES, HARDWARE ISSUES in tiles | or sorted.
+
+track mail sent button from database
+
+error code: 0x800701B1

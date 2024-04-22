@@ -45,7 +45,7 @@ function Sidebar(props) {
           </div>
         </a>
         <a
-          href="https://www.creative-tim.com"
+          href="#"
           className="simple-text logo-normal"
         >
           MIS Helpdesk

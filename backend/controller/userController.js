@@ -1,19 +1,12 @@
 import asyncHandler from "express-async-handler"
 import UserComplaint from "../models/userComplaint.js"
 import nodemailer from 'nodemailer'
-
-const authenticateUser = asyncHandler (async(req,res) => {
-    res.status(200).json({message: "User auththenticated"})
-})
-
-const registerUser = asyncHandler(async (req,res) => {
-    res.status(200).json({message: "User added"})
-})
+import apiConfig from "../../frontend/src/apiConfig.mjs";
 
 
 // create complaint
 const sendComplaint = asyncHandler(async (req,res) => {
-    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer, confirmationOfficerFeedback} = req.body;
+    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer, confirmationOfficerFeedback, category} = req.body;
     const complaint = await UserComplaint.create({
         email, 
         date,
@@ -24,12 +17,14 @@ const sendComplaint = asyncHandler(async (req,res) => {
         outcome, 
         MIS_Officer, 
         confirmationOfficer,
-        confirmationOfficerFeedback: "Not Confirmed"
+        category,
+        confirmationOfficerFeedback: "Not Confirmed",
     })
 
     console.log("Confirmation Officer Feedback:", confirmationOfficerFeedback);
 
     if (complaint) {
+      console.log('res drta is - ', complaint)
         res.status(201).json({complaint})
     } else {
        console.log("Invalid data")
@@ -47,7 +42,7 @@ const getComplaints = asyncHandler(async (req,res) => {
 // update complaint
 const updateComplaint = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer } = req.body; // Get the updated complaint data from the request body
+    const { email, date, issue, department, timeIn, timeOut, outcome, MIS_Officer, confirmationOfficer, category } = req.body; // Get the updated complaint data from the request body
     const complaint = await UserComplaint.findById(id);
   
     if (!complaint) {
@@ -65,6 +60,7 @@ const updateComplaint = asyncHandler(async (req, res) => {
     complaint.outcome = outcome || complaint.outcome;
     complaint.MIS_Officer = MIS_Officer || complaint.MIS_Officer;
     complaint.confirmationOfficer = confirmationOfficer || complaint.confirmationOfficer;
+    complaint.category = category || complaint.category;
   
     await complaint.save();
   
@@ -91,11 +87,11 @@ const sendConfirmationEmail = asyncHandler(async (req, res) => {
     const email = req.body.email
     const id = req.body.id
     
-    const API_URL = "https://helpdesk-back.glitch.me/api/complaints"
     // const API_URL = "http://localhost:5000/api/complaints"
+    const url = `${apiConfig.API_URL}`
 
-    const confirmSatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=true`;
-    const confirmDissatisfactionUrl = `${API_URL}/confirm-satisfaction?id=${id}&confirm-satisfaction=false`;
+    const confirmSatisfactionUrl = `${url}/confirm-satisfaction?id=${id}&confirm-satisfaction=true`;
+    const confirmDissatisfactionUrl = `${url}/confirm-satisfaction?id=${id}&confirm-satisfaction=false`;
 
     let transporter = nodemailer.createTransport({
         service: 'Gmail',
@@ -160,6 +156,7 @@ const sendConfirmationEmail = asyncHandler(async (req, res) => {
   
     try {
       let info = await transporter.sendMail(mailOptions);
+      await UserComplaint.findByIdAndUpdate(id, { lastClickedDateTime: new Date().toLocaleString() });
       console.log('Email sent:', info.response);
     } catch (error) {
       console.error('Error sending email:', error);
@@ -294,9 +291,7 @@ const confirmSatisfaction = asyncHandler(async (req, res) => {
 
 
 
-export {
-    authenticateUser, 
-    registerUser, 
+export { 
     sendComplaint, 
     getComplaints, 
     updateComplaint, 

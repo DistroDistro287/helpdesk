@@ -11,28 +11,83 @@ import NewComplaint from "./views/NewComplaint";
 import Complaints from "./views/Complaints";
 import UpdateComplaint from "./views/UpdateComplaint";
 import ComplaintDetails from "./components/ComplaintDetails.js";
-
+import AllComplaints from "./views/tiles/AllComplaints.js";
+import ResolvedComplaints from "./views/tiles/ResolvedComplaints.js";
+import UnResolvedComplaints from "./views/tiles/UnResolvedComplaints.js";
+import PendingComplaints from "./views/tiles/PendingComplaints.js";
+import HardwareComplaints from "./views/tiles/HardwareComplaints.js";
+import SoftwareComplaints from "./views/tiles/SoftwareComplaints.js";
+import NetworkComplaints from "./views/tiles/NetworkComplaints.js";
 
 var routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
-    icon: "nc-icon nc-bank",
+    // icon: "nc-icon nc-bank",
     component: <Dashboard />,
     layout: "/admin",
   },
   {
     path: "/complaint",
     name: "Log Complaint",
-    icon: "nc-icon nc-simple-add",
+    // icon: "nc-icon nc-simple-add",
     component: <NewComplaint />,
     layout: "/admin",
   },
   {
     path: "/complaints",
     name: "Complaints",
-    icon: "nc-icon nc-bell-55",
+    // icon: "nc-icon nc-bell-55",
     component: <Complaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/all-complaints",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <AllComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/resolved-complaints",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <ResolvedComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/unresolved-complaints",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <UnResolvedComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/pending-complaints",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <PendingComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/category/software",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <SoftwareComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/category/hardware",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <HardwareComplaints />,
+    layout: "/admin",
+  },
+  {
+    path: "/category/network",
+    name: "",
+    // icon: "nc-icon nc-bell-55",
+    component: <NetworkComplaints />,
     layout: "/admin",
   },
   // {
